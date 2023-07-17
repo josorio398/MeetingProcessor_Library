@@ -62,11 +62,44 @@ To use MeetingProcessor you can use:
 Google Colaboratory Support
 ---------------------------
 
-For use in Google Colab (https://colab.research.google.com/) install texlive-fonts, texlive-fonts-extra and dvipng package using:
+MeetingProcessor can also be used in Google Colab by following the steps below:
+
+**Clone repository**
 
 .. code:: python
 
+    !git clone https://github.com/josorio398/MeetingProcessor_Library
+
+**Installation of requirements**
+
+.. code:: python
+
+    %%capture
+    %cd /content/MeetingProcessor_Library
+    !pip install -r requirements.txt
+
+**LaTeX Installation**
+
+.. code:: python
+
+    %%capture
+    %cd /content/
     !apt install texlive-fonts-recommended texlive-fonts-extra cm-super dvipng
+
+**Library Import**
+
+.. code:: python
+
+    import sys
+    sys.path.append('/content/MeetingProcessor_Library')
+
+    from MeetingProcessor import Meet
+
+    meeting = Meet('https://www.youtube.com/watch?v=dQw4w9WgXcQ')
+    meeting.process()
+
+This process installs all the necessary dependencies, clones the repository into the Google Colab environment, installs LaTeX packages, and imports the MeetingProcessor library. It finally processes a meeting from a YouTube URL.
+
 
 Usage
 =====
