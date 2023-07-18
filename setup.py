@@ -38,7 +38,7 @@ def read_file(is_json=False, file_path=None, encoding='utf-8',
             with open(file_path) as buff:
                 if is_encoding:
                     text = buff.read().decode(encoding)
-                else,
+                else:
                     text = buff.read()
         if is_json:
             return json.loads(text)
@@ -71,21 +71,21 @@ def read(file_name=None, is_encoding=True, ignore_raises=False):
 setup(
     name='MeetingProcessor',
     version=VERSION,
-    license="CC BY-NC-SA 4.0",
+    license="MIT",
     packages=find_packages(),
     description='A Python Library for Processing Meetings Using GPT-4 and Whisper ASR',
     long_description=read("README.rst"),
     author='Jhonny Osorio Gallego',
     author_email='osoriojohnny1986@gmail.com',
-    url='',
-    download_url=''.format(
-        VERSION),
+    url='https://github.com/josorio398/MeetingProcessor_Library',
+    download_url='https://github.com/josorio398/MeetingProcessor_Library',
     keywords=['meetings', 'processing', 'GPT-4', 'Whisper ASR', 'Python', 'openai'],
     install_requires=[
         'openai-whisper',
         'pytube',
         'pydub',
         'openai',
+        'pdf2docx',
     ],
     setup_requires=[
         'openai-whisper',
@@ -104,9 +104,11 @@ setup(
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'Topic :: Software Development :: Build Tools',
+        'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
     ],
 )
+

@@ -2,3 +2,4 @@ openai-whisper
 pytube
 pydub
 openai
+pdf2docx
