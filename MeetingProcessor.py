@@ -127,41 +127,65 @@ class Meet:
         cv.close()
         return docx_file
 
-    def process(self):
+    def process(self, max_retries=2):
         print("Please enter your OpenAI API key:")
         self.api_key = getpass.getpass()
-        if 'youtube' in self.url_or_path:
-            with tqdm(total=1, desc="Downloading video from YouTube", disable=False) as pbar:
-                self.download_video(self.url_or_path)
-                pbar.update(1)
-            video_path = '/content/video.mp4'
+
+        # Si la entrada es un archivo de audio, comienza a partir de la transcripción
+        if self.url_or_path.endswith('.mp3'):
+            self.audio_path = self.url_or_path
         else:
-            video_path = self.url_or_path
-        with tqdm(total=1, desc="Converting video to audio", disable=False) as pbar:
-            self.audio_path = self.video2audio(video_path)
-            pbar.update(1)
+            # Verificar si es una URL de YouTube
+            if 'youtube' in self.url_or_path:
+                with tqdm(total=1, desc="Downloading video from YouTube", disable=False) as pbar:
+                    self.download_video(self.url_or_path)
+                    pbar.update(1)
+                video_path = '/content/video.mp4'
+            else:
+                video_path = self.url_or_path
+
+            # Convertir el video a audio
+            with tqdm(total=1, desc="Converting video to audio", disable=False) as pbar:
+                self.audio_path = self.video2audio(video_path)
+                pbar.update(1)
+
+        # Transcribir el audio a texto
         print("Transcribing audio with Whisper...")
         self.transcription_path = self.audio2text(self.audio_path)
-        with tqdm(total=1, desc="Processing text with GPT-4", disable=False) as pbar:
-            self.response_path = self.text_processing(self.transcription_path)
-            pbar.update(1)
 
-        with tqdm(total=1, desc="Creating LaTeX document", disable=False) as pbar:
-            self.latex_path = self.latex_document(self.response_path)
-            pbar.update(1)
+        retry_count = 0
+        while retry_count <= max_retries:
+            # Procesar el texto con OpenAI
+            with tqdm(total=1, desc="Processing text with GPT-4", disable=False) as pbar:
+                self.response_path = self.text_processing(self.transcription_path)
+                pbar.update(1)
 
-        with tqdm(total=1, desc="Converting LaTeX Document to PDF", disable=False) as pbar:
-            self.pdf_path = self.convert_pdf(self.latex_path)
-            pbar.update(1)
+            # Crear el documento LaTeX
+            with tqdm(total=1, desc="Creating LaTeX document", disable=False) as pbar:
+                self.latex_path = self.latex_document(self.response_path)
+                pbar.update(1)
+
+            # Convertir el documento LaTeX a PDF
+            with tqdm(total=1, desc="Converting LaTeX Document to PDF", disable=False) as pbar:
+                self.pdf_path = self.convert_pdf(self.latex_path)
+                pbar.update(1)
+
+            if self.pdf_path is not None:
+                break
+            else:
+                retry_count += 1
+                print(f"Retry {retry_count}/{max_retries} for GPT-4 text processing...")
 
         if self.pdf_path is None:
-            print(f"Failed to convert LaTeX to PDF after 2 retries.")
+            print(f"Failed to convert LaTeX to PDF after {max_retries} retries.")
             return None
 
+        # Convertir el documento PDF a docx
         with tqdm(total=1, desc="Converting PDF to Word document", disable=False) as pbar:
             self.docx_path = self.pdf2docx(self.pdf_path)
             pbar.update(1)
 
+        # Descarga el archivo
         with tqdm(total=1, desc="Downloading Word document", disable=False) as pbar:
             self.download_file(self.docx_path)
             pbar.update(1)
